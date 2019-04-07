@@ -3,6 +3,7 @@ the rss feed from "skolmaten"
 
 
 Use like
+<code>
 sensor:
   - platform: skolmaten
     name: Skolmaten
@@ -19,8 +20,7 @@ sensor:
       - title
       - summary
 
-
-
+</code>
 
 The project is based on code from
 https://github.com/custom-components/sensor.feedparser

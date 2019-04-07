@@ -3,7 +3,7 @@ the rss feed from "skolmaten"
 
 
 Use like
-<code>
+```
 sensor:
   - platform: skolmaten
     name: Skolmaten
@@ -19,10 +19,12 @@ sensor:
       - published
       - title
       - summary
-
-</code>
+```
 
 The project is based on code from
 https://github.com/custom-components/sensor.feedparser
 
 The project is just a hack
+
+Copy the component to e.g.
+/home/homeassistant/.homeassistant/custom_components/skolmaten

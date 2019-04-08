@@ -14,7 +14,6 @@ from subprocess import check_output
 from homeassistant.helpers.entity import Entity
 import homeassistant.helpers.config_validation as cv
 from homeassistant.components.sensor import (PLATFORM_SCHEMA)
-from collections import OrderedDict
 
 from homeassistant.const import CONF_MONITORED_CONDITIONS
 
@@ -71,9 +70,8 @@ class SkolmatenSensor(Entity):
         self._inclusions = config[CONF_INCLUSIONS]
         self._exclusions = config[CONF_EXCLUSIONS]
         self._state = None
-        # Using ordered dict since order matters
-        #self.hass.data[self._name] = {}
-        self.hass.data[self._name] = OrderedDict()
+        self.hass.data[self._name] = {}
+        #_LOGGER.debug("New instance: %s" % (self._name))
         self.update()
 
 
@@ -85,44 +83,35 @@ class SkolmatenSensor(Entity):
             return False
         else:
             self._state = len(parsedFeed.entries)
-            #self.hass.data[self._name] = {}
-            self.hass.data[self._name] = OrderedDict()
+            self.hass.data[self._name] = {}
+            #_LOGGER.debug("Updating sensor %s" % (self._sensor_type))
 
             # Process the RSS feed
             for entry in parsedFeed.entries:
-                title = entry['title'] if entry['title'] else entry['description']
+                title = entry['title']
+                #_LOGGER.debug("Processing %s" % (title))
 
                 if not title:
                   continue
 
-                self.hass.data[self._name][title] = {}
+                day = entry['published']
 
-                for key, value in entry.items():
-                  _LOGGER.debug("Have key %s: value %s" % (key, value))
-                  if (self._inclusions and key not in self._inclusions) or ('parsed' in key) or (key in self._exclusions):
-                    continue
+                if not day:
+                  continue
 
-                  if key in ['published', 'updated', 'created', 'expired']:
-                    value = parser.parse(value).replace(tzinfo=None).strftime(self._date_format)
+                day = day.split(",")[0]
 
-                  self.hass.data[self._name][title][key] = value
-
-            # TODO This must be cleaned up ! Currently just a hack to get things going
-            #_LOGGER.debug("Testing list %s" % (list(self.hass.data[self._name].items())[0][1]))
-            #_LOGGER.debug("Testing list %s" % (list(self.hass.data[self._name].items())[1][1]))
-            for i in range(self._state):
-                day = list(self.hass.data[self._name].items())[i][1]['published'].split(",")[0]
-                #_LOGGER.debug("Testing day %s:%s" % (day, SENSOR_TYPES[self._sensor_type][0]))
+                # Is this the day this sensor matches ?
                 if day == SENSOR_TYPES[self._sensor_type][0]:
-                    #day, week = list(self.hass.data[self._name].items())[i][1]['title'].split(" - ")
-                    summary = list(self.hass.data[self._name].items())[i][1]['summary']
-                    # Replace <br/> with .
-                    summary = summary.replace("<br/>", ".")
-                    #self._state = day + " " + week + ": " + str(summary)
+                    # Should try here ...
+                    summary = entry['summary']
+                    if summary:
+                        summary = summary.replace("<br/>", ".")
+
                     self._state = title + ": " + str(summary)
                     self._state = self._state[:250]
-                    _LOGGER.debug("Built state %s" % (self._state))
-                i=i+1
+                    self.hass.data[self._name][title] = {'title': title, 'day': day, 'summary': summary}
+                    #_LOGGER.debug("Built state %s" % (self._state))
 
     @property
     def name(self):

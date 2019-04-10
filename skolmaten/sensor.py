@@ -110,8 +110,9 @@ class SkolmatenSensor(Entity):
 
                     self._state = title + ": " + str(summary)
                     self._state = self._state[:250]
-                    self.hass.data[self._name][title] = {'title': title, 'day': day, 'summary': summary}
+                    self.hass.data[self._name][title] = {'day': day, 'summary': summary}
                     #_LOGGER.debug("Built state %s" % (self._state))
+                    break
 
     @property
     def name(self):

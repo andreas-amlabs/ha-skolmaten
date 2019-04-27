@@ -1,0 +1,8 @@
+{
+  "domain": "skolmaten",
+  "name": "Skolmaten",
+  "documentation": "https://github.com/andreas-amlabs/ha-skolmaten",
+  "dependencies": [],
+  "codeowners": ["@andreas-amlabs"],
+  "requirements": ["feedparser==5.2.1"]
+}
